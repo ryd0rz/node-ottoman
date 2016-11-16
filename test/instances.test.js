@@ -10,6 +10,7 @@ describe('Model Instances', function () {
   var TestMdl = ottoman.model(modelId, {
     name: 'string'
   });
+
   var testInstance = new TestMdl({ name: 'Joe Blow' });
 
   before (function (done) {

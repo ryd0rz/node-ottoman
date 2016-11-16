@@ -56,19 +56,19 @@ describe('Model Queries', function () {
             assert.isArray(res);
             assert.propertyVal(res, 'length', 2);
             var objx1 = null, objx2 = null;
-            if (res[0]._id === px1._id) {
+            if (res[0].id === px1.id) {
               objx1 = res[0];
               objx2 = res[1];
-            } else if (res[0]._id === px2._id) {
+            } else if (res[0].id === px2.id) {
               objx2 = res[0];
               objx1 = res[1];
             } else {
               assert.fail();
             }
 
-            assert.equal(objx1._id, px1._id);
+            assert.equal(objx1.id, px1.id);
             assert.equal(objx1.msg, 'Bob Post 1');
-            assert.equal(objx2._id, px2._id);
+            assert.equal(objx2.id, px2.id);
             assert.equal(objx2.msg, 'Bob Post 2');
             done();
           });
