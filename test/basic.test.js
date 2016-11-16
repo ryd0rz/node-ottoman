@@ -86,53 +86,37 @@ describe('Models', function () {
 
     });
 
-  it('should serialize basic types properly', function () {
-    var modelId = H.uniqueId('model');
-
-    var TestMdl = ottoman.model(modelId, {
-      name: 'string'
-    });
-    var x = new TestMdl();
-    var xJson = x.toCoo();
-
-    assert.typeOf(xJson._type, 'string');
-    assert.equal(xJson._type, ottoman.nsPrefix() + modelId);
-    assert.typeOf(xJson._id, 'string');
-    assert.equal(xJson._id, x._id);
-    assert.isUndefined(xJson.name);
-  });
-
-  it('should serialize string types properly', function () {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
-      name: 'string'
-    });
-    var x = new TestMdl();
-    x.name = 'Frank';
-    var xJson = x.toCoo();
-
-    assert.equal(xJson.name, 'Frank');
-  });
-
-  it('should round-trip COO properly', function () {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
-      name: 'string'
-    });
-
-    var x = new TestMdl();
-    x.name = 'Frank';
-    var xCoo = ottoman.toCoo(x);
-    var xObj = ottoman.fromCoo(xCoo);
-
-    assert.instanceOf(xObj, TestMdl);
-    assert.equal(x.name, xObj.name);
-  });
-
-  it('should fail to deserialize a type with incorrect explicit type',
-    function () {
+  describe('Coo format', function () {
+    it('should serialize basic types properly', function () {
       var modelId = H.uniqueId('model');
-      var fakeModelId = H.uniqueId('model');
+
+      var TestMdl = ottoman.model(modelId, {
+        name: 'string'
+      });
+      var x = new TestMdl();
+      var xJson = x.toCoo();
+
+      assert.typeOf(xJson._type, 'string');
+      assert.equal(xJson._type, ottoman.nsPrefix() + modelId);
+      assert.typeOf(xJson._id, 'string');
+      assert.equal(xJson._id, x._id);
+      assert.isUndefined(xJson.name);
+    });
+
+    it('should serialize string types properly', function () {
+      var modelId = H.uniqueId('model');
+      var TestMdl = ottoman.model(modelId, {
+        name: 'string'
+      });
+      var x = new TestMdl();
+      x.name = 'Frank';
+      var xJson = x.toCoo();
+
+      assert.equal(xJson.name, 'Frank');
+    });
+
+    it('should round-trip COO properly', function () {
+      var modelId = H.uniqueId('model');
       var TestMdl = ottoman.model(modelId, {
         name: 'string'
       });
@@ -140,170 +124,292 @@ describe('Models', function () {
       var x = new TestMdl();
       x.name = 'Frank';
       var xCoo = ottoman.toCoo(x);
+      var xObj = ottoman.fromCoo(xCoo);
 
+      assert.instanceOf(xObj, TestMdl);
+      assert.equal(x.name, xObj.name);
+    });
+
+    it('should fail to deserialize a type with incorrect explicit type',
+      function () {
+        var modelId = H.uniqueId('model');
+        var fakeModelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          name: 'string'
+        });
+
+        var x = new TestMdl();
+        x.name = 'Frank';
+        var xCoo = ottoman.toCoo(x);
+
+        assert.throw(function () {
+          ottoman.fromCoo(xCoo, fakeModelId);
+        }, Error);
+      });
+
+    it('should deserialize a type with correct explicit type', function () {
+      var modelId = H.uniqueId('model');
+      var TestMdl = ottoman.model(modelId, {
+        name: 'string'
+      });
+
+      var x = new TestMdl();
+      x.name = 'Frank';
+      var xCoo = ottoman.toCoo(x);
+      var xObj = ottoman.fromCoo(xCoo, modelId);
+
+      assert.instanceOf(xObj, TestMdl);
+      assert.equal(x.name, xObj.name);
+    });
+
+    it('should fail to deserialize a Mixed type without _type', function () {
+      var data = {
+        name: 'Frank'
+      };
       assert.throw(function () {
-        ottoman.fromCoo(xCoo, fakeModelId);
+        ottoman.fromCoo(data);
       }, Error);
     });
 
-  it('should deserialize a type with correct explicit type', function () {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
-      name: 'string'
+    it('should deserialize with an explicit type', function () {
+      var modelId = H.uniqueId('model');
+      var TestMdl = ottoman.model(modelId, {
+        name: 'string'
+      });
+
+      var data = {
+        name: 'Frank'
+      };
+      var x = ottoman.fromCoo(data, modelId);
+      assert.instanceOf(x, TestMdl);
+      assert.equal(x.name, 'Frank');
     });
 
-    var x = new TestMdl();
-    x.name = 'Frank';
-    var xCoo = ottoman.toCoo(x);
-    var xObj = ottoman.fromCoo(xCoo, modelId);
+    it('should fail to deserialize an unregistered type', function () {
+      var modelId = H.uniqueId('model');
+      var data = {
+        _type: modelId,
+        name: 'Frank'
+      };
+      assert.throw(function () {
+        ottoman.fromCoo(data);
+      }, Error);
+    });
 
-    assert.instanceOf(xObj, TestMdl);
-    assert.equal(x.name, xObj.name);
+    describe('Strings', function () {
+      it('should serialize string types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          str: 'string'
+        });
+        var x = new TestMdl();
+        x.str = 'Bob';
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.str, 'string');
+        assert.equal(xJson.str, 'Bob');
+      });
+
+      it('should serialize mixed string types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          str: 'Mixed'
+        });
+        var x = new TestMdl();
+        x.str = 'Bob';
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.str, 'string');
+        assert.equal(xJson.str, 'Bob');
+      });
+    });
+
+    describe('Numbers', function () {
+      it('should serialize numbers types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          num: 'integer'
+        });
+        var x = new TestMdl();
+        x.num = 44.4;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.num, 'number');
+        assert.equal(xJson.num, 44.4);
+      });
+
+      it('should serialize mixed numbers types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          num: 'Mixed'
+        });
+        var x = new TestMdl();
+        x.num = 44.4;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.num, 'number');
+        assert.equal(xJson.num, 44.4);
+      });
+    });
+
+    describe('Integers', function () {
+      it('should serialize integer types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          int: 'integer'
+        });
+        var x = new TestMdl();
+        x.int = 44;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.int, 'number');
+        assert.equal(xJson.int, 44);
+      });
+
+      it('should serialize mixed integer types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          int: 'Mixed'
+        });
+        var x = new TestMdl();
+        x.int = 44;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.int, 'number');
+        assert.equal(xJson.int, 44);
+      });
+    });
+
+    describe('Booleans', function () {
+      it('should serialize boolean types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          bool: 'integer'
+        });
+        var x = new TestMdl();
+        x.bool = true;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.bool, 'boolean');
+        assert.equal(xJson.bool, true);
+      });
+
+      it('should serialize mixed boolean types properly', function () {
+        var modelId = H.uniqueId('model');
+        var TestMdl = ottoman.model(modelId, {
+          bool: 'Mixed'
+        });
+        var x = new TestMdl();
+        x.bool = true;
+        var xJson = x.toCoo();
+
+        assert.typeOf(xJson.bool, 'boolean');
+        assert.equal(xJson.bool, true);
+      });
+    });
   });
 
-  it('should fail to deserialize a Mixed type without _type', function () {
-    var data = {
-      name: 'Frank'
-    };
-    assert.throw(function () {
-      ottoman.fromCoo(data);
-    }, Error);
-  });
+  describe('Json format', function () {
+    it('should serialize basic types properly', function () {
+      var modelId = H.uniqueId('model');
 
-  it('should deserialize with an explicit type', function () {
-    var modelId = H.uniqueId('model');
-    var TestMdl = ottoman.model(modelId, {
-      name: 'string'
+      var TestMdl = ottoman.model(modelId, {
+        name: 'string',
+        aDate: 'Date',
+        aNum: 'number',
+        aBool: 'boolean',
+        mixed: 'Mixed',
+        subDoc: {
+          test: 'string'
+        }
+      });
+
+      var aDate = new Date();
+      var aNum = 3;
+      var aBool = false;
+      var mixed = 'could have been anything';
+
+      var x = new TestMdl({
+        name: 'hello',
+        aDate: aDate,
+        aNum: aNum,
+        aBool: aBool,
+        mixed: mixed,
+        subDoc: {
+          test: 'test'
+        }
+      });
+      var xJson = x.toJSON();
+
+      assert.typeOf(xJson, 'object');
+
+      // _type should *not* be there, no internals.
+      assert.equal(x._type, undefined);
+
+      assert.typeOf(xJson._id, 'string');
+      assert.equal(xJson.name, 'hello');
+      assert.equal(xJson.aNum, aNum);
+      assert.equal(xJson.aBool, aBool);
+      assert.equal(xJson.mixed, mixed);
+      assert.equal(xJson.aDate, aDate.toISOString());
+      assert.equal(xJson.subDoc.test, 'test');
     });
 
-    var data = {
-      name: 'Frank'
-    };
-    var x = ottoman.fromCoo(data, modelId);
-    assert.instanceOf(x, TestMdl);
-    assert.equal(x.name, 'Frank');
-  });
-
-  it('should fail to deserialize an unregistered type', function () {
-    var modelId = H.uniqueId('model');
-    var data = {
-      _type: modelId,
-      name: 'Frank'
-    };
-    assert.throw(function () {
-      ottoman.fromCoo(data);
-    }, Error);
-  });
-
-  describe('Strings', function () {
-    it('should serialize string types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        str: 'string'
+    it('should serialize references as mongoose references', function () {
+      var Account = ottoman.model(H.uniqueId('model'), {
+        email: 'string',
+        name: 'string'
       });
-      var x = new TestMdl();
-      x.str = 'Bob';
-      var xJson = x.toCoo();
 
-      assert.typeOf(xJson.str, 'string');
-      assert.equal(xJson.str, 'Bob');
+      var User = ottoman.model(H.uniqueId('model'), {
+        username: 'string',
+        account: { ref: Account }
+      });
+
+      var myAccount = new Account({
+        email: 'burtteh@fakemail.com',
+        name: 'Brett Lawson'
+      });
+
+      var myUser = new User({
+        username: 'brett19',
+        account: myAccount
+      });
+
+      var myUserJson = myUser.toJSON();
+      assert.typeOf(myUserJson.account, 'object');
+      assert.equal(myUserJson.account.$id, myAccount._id);
+      assert.equal(myUserJson.account.$ref, Account.name);
     });
 
-    it('should serialize mixed string types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        str: 'Mixed'
+    it('should serialize mixed references correctly', function () {
+      var Container = ottoman.model(H.uniqueId('model'), {
+        myRef: { ref: 'Mixed' }
       });
-      var x = new TestMdl();
-      x.str = 'Bob';
-      var xJson = x.toCoo();
 
-      assert.typeOf(xJson.str, 'string');
-      assert.equal(xJson.str, 'Bob');
-    });
-  });
-
-  describe('Numbers', function () {
-    it('should serialize numbers types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        num: 'integer'
+      var Platypus = ottoman.model(H.uniqueId('model'), {
+        name: { type: 'string', default: 'Steve' }
       });
-      var x = new TestMdl();
-      x.num = 44.4;
-      var xJson = x.toCoo();
 
-      assert.typeOf(xJson.num, 'number');
-      assert.equal(xJson.num, 44.4);
+      var steve = new Platypus({ name: 'Steve' });
+      var container = new Container({
+        myRef: steve
+      });
+
+      var containerJson = container.toJSON();
+      assert.typeOf(containerJson.myRef, 'object');
+      assert.equal(containerJson.myRef.$id, steve._id);
+      assert.equal(containerJson.myRef.$ref, Platypus.name);
     });
 
-    it('should serialize mixed numbers types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        num: 'Mixed'
+    it('should serialize unloaded references as null', function () {
+      var Platypus = ottoman.model(H.uniqueId('model'), {
+        name: { type: 'string', default: 'Steve' }
       });
-      var x = new TestMdl();
-      x.num = 44.4;
-      var xJson = x.toCoo();
 
-      assert.typeOf(xJson.num, 'number');
-      assert.equal(xJson.num, 44.4);
-    });
-  });
-
-  describe('Integers', function () {
-    it('should serialize integer types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        int: 'integer'
-      });
-      var x = new TestMdl();
-      x.int = 44;
-      var xJson = x.toCoo();
-
-      assert.typeOf(xJson.int, 'number');
-      assert.equal(xJson.int, 44);
-    });
-
-    it('should serialize mixed integer types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        int: 'Mixed'
-      });
-      var x = new TestMdl();
-      x.int = 44;
-      var xJson = x.toCoo();
-
-      assert.typeOf(xJson.int, 'number');
-      assert.equal(xJson.int, 44);
-    });
-  });
-
-  describe('Booleans', function () {
-    it('should serialize boolean types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        bool: 'integer'
-      });
-      var x = new TestMdl();
-      x.bool = true;
-      var xJson = x.toCoo();
-
-      assert.typeOf(xJson.bool, 'boolean');
-      assert.equal(xJson.bool, true);
-    });
-
-    it('should serialize mixed boolean types properly', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        bool: 'Mixed'
-      });
-      var x = new TestMdl();
-      x.bool = true;
-      var xJson = x.toCoo();
-
-      assert.typeOf(xJson.bool, 'boolean');
-      assert.equal(xJson.bool, true);
+      var platypus = Platypus.ref('some-crazy-id');
+      var platypusJson = platypus.toJSON();
+      assert.equal(platypusJson, null);
     });
   });
 
@@ -715,14 +821,18 @@ describe('Models', function () {
     assert.equal(x.name, 'Joseph');
   });
 
-  it('should validate a model', function () {
+  it('should validate a model', function (done) {
     var modelId = H.uniqueId('model');
+    var called = false;
     var TestMdl = ottoman.model(modelId, {
       name: {
         type: 'string',
         validator: function (value) {
           if (typeof (value) !== 'string') {
             throw new Error('bad data');
+          }
+          else {
+            called = true;
           }
         }
       }
@@ -731,10 +841,12 @@ describe('Models', function () {
     var x = new TestMdl({ name: 'Joseph' });
     ottoman.validate(x, function (err) {
       assert.isNull(err);
+      assert.equal(called, true);
+      done();
     });
   });
 
-  it('should fail to validate bad data', function () {
+  it('should fail to validate bad data', function (done) {
     var modelId = H.uniqueId('model');
     var TestMdl = ottoman.model(modelId, {
       name: {
@@ -751,6 +863,86 @@ describe('Models', function () {
     x.name = 1;
     ottoman.validate(x, function (err) {
       assert.isNotNull(err);
+      done();
+    });
+  });
+
+  it('should validate a model to all depths', function (done) {
+    var modelId = H.uniqueId('model');
+    var called = false;
+    var TestMdl = ottoman.model(modelId, {
+      person: {
+        name: {
+          type: 'string',
+          validator: function (value) {
+            if (typeof (value) !== 'string') {
+              throw new Error('bad data');
+            }
+            else {
+              called = true;
+            }
+          }
+        }
+      }
+    });
+
+    var x = new TestMdl({ person: { name: 'Joseph' } });
+    ottoman.validate(x, function (err) {
+      assert.isNull(err);
+      assert.equal(called, true);
+      done();
+    });
+  });
+
+  // null subdocs without a validator should pass through unharmed
+  it('should validate a model to all depths unless null subdocs have no validator', function (done) {
+    var modelId = H.uniqueId('model');
+    var TestMdl = ottoman.model(modelId, {
+      person: {
+        notes: { type: 'string' },
+        info:{
+          name: {
+            type: 'string',
+          }
+        }
+      }
+    });
+    // leaving off the person.info.name bit should be ok in this case
+    var x = new TestMdl({ person: { notes: 'goes by joe'  } });
+    ottoman.validate(x, function (err) {
+      assert.isNull(err);
+      done();
+    });
+  });
+
+
+
+  // A model instance may have a null subdoc that needs to be validated
+  it('should validate a model to all depths and handle null subdocs', function (done) {
+    var modelId = H.uniqueId('model');
+    var called = false;
+    var TestMdl = ottoman.model(modelId, {
+      person: {
+        notes: { type: 'string' },
+        info:{
+          name: {
+            type: 'string',
+            validator: function (value) {
+              if (typeof (value) !== 'string') {
+                called = true;
+                throw new Error('bad data');
+              }
+            }
+          }
+        }
+      }
+    });
+    // leaving off the name field is not ok here because info is null
+    var x = new TestMdl({ person: { notes: 'goes by joe'  } });
+    ottoman.validate(x, function (err) {
+      assert.isNotNull(err);
+      assert.equal(called, true);
+      done();
     });
   });
 
