@@ -95,11 +95,10 @@ describe('Models', function () {
       });
       var x = new TestMdl();
       var xJson = x.toCoo();
-
       assert.typeOf(xJson._type, 'string');
       assert.equal(xJson._type, ottoman.nsPrefix() + modelId);
-      assert.typeOf(xJson._id, 'string');
-      assert.equal(xJson._id, x._id);
+      assert.typeOf(xJson.id, 'string');
+      assert.equal(xJson.id, x._id);
       assert.isUndefined(xJson.name);
     });
 
@@ -346,7 +345,7 @@ describe('Models', function () {
       // _type should *not* be there, no internals.
       assert.equal(x._type, undefined);
 
-      assert.typeOf(xJson._id, 'string');
+      assert.typeOf(xJson.id, 'string');
       assert.equal(xJson.name, 'hello');
       assert.equal(xJson.aNum, aNum);
       assert.equal(xJson.aBool, aBool);
@@ -556,46 +555,46 @@ describe('Models', function () {
     });
   });
 
-  describe('Ids', function () {
-    it('should fail if the model defines an id property', function () {
-      assert.throws(function () {
-        var modelId = H.uniqueId('model');
-        ottoman.model(modelId, {
-          id: 'string'
-        });
-      }, Error);
-    });
+  // describe('Ids', function () {
+  //   it('should fail if the model defines an id property', function () {
+  //     assert.throws(function () {
+  //       var modelId = H.uniqueId('model');
+  //       ottoman.model(modelId, {
+  //         id: 'string'
+  //       });
+  //     }, Error);
+  //   });
 
-    it('should accept custom id properties', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        customId: { type: 'string', auto: 'uuid', readonly: true }
-      }, {
-          id: 'customId'
-        });
-      var x = new TestMdl();
-      var xJson = x.toCoo();
+  //   it('should accept custom id properties', function () {
+  //     var modelId = H.uniqueId('model');
+  //     var TestMdl = ottoman.model(modelId, {
+  //       customId: { type: 'string', auto: 'uuid', readonly: true }
+  //     }, {
+  //         id: 'customId'
+  //       });
+  //     var x = new TestMdl();
+  //     var xJson = x.toCoo();
 
-      assert.notProperty(xJson, '_id');
-      assert.equal(xJson.customId, x.customId);
-    });
+  //     assert.notProperty(xJson, '_id');
+  //     assert.equal(xJson.customId, x.customId);
+  //   });
 
-    it('should accept custom id properties inside groups', function () {
-      var modelId = H.uniqueId('model');
-      var TestMdl = ottoman.model(modelId, {
-        test: {
-          customId: { type: 'string', auto: 'uuid', readonly: true }
-        }
-      }, {
-          id: 'test.customId'
-        });
-      var x = new TestMdl();
-      var xJson = x.toCoo();
+  //   it('should accept custom id properties inside groups', function () {
+  //     var modelId = H.uniqueId('model');
+  //     var TestMdl = ottoman.model(modelId, {
+  //       test: {
+  //         customId: { type: 'string', auto: 'uuid', readonly: true }
+  //       }
+  //     }, {
+  //         id: 'test.customId'
+  //       });
+  //     var x = new TestMdl();
+  //     var xJson = x.toCoo();
 
-      assert.notProperty(xJson, '_id');
-      assert.equal(xJson.test.customId, x.test.customId);
-    });
-  });
+  //     assert.notProperty(xJson, '_id');
+  //     assert.equal(xJson.test.customId, x.test.customId);
+  //   });
+  // });
 
   it('should have a working custom inspector', function () {
     var modelId = H.uniqueId('model');
