@@ -4,7 +4,7 @@
 
 ```
 {
-  "_type": "Account",
+  "type": "Account",
   ...
 }
 ```
@@ -15,7 +15,7 @@ References include the type of the document to permit the decoder to early-bind 
 
 ```
 {
-  "_type": "DOCUMENT_TYPE",
+  "type": "DOCUMENT_TYPE",
   "$ref": "DOCUMENT_KEY"
 }
 ```
@@ -26,7 +26,7 @@ References include the type of the document to permit the decoder to early-bind 
 
 ```
 {
-  "_type":"Date",
+  "type":"Date",
   "v": "2007-03-01T13:00:00Z"
 }
 ```
@@ -39,7 +39,7 @@ References include the type of the document to permit the decoder to early-bind 
 
 ```javascript
 {
-  "_type": "Map",
+  "type": "Map",
   ...
 }
 ```

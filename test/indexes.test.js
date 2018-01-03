@@ -81,7 +81,7 @@ describe('Model Indexes', function () {
   });
 
   if (ottoman.store instanceof ottoman.CbStoreAdapter) {
-    it('should create index on _type when indexing for n1ql', function (done) {
+    it('should create index on type when indexing for n1ql', function (done) {
       var couchbase = require('couchbase');
 
       _indexTest.call(this, 'n1ql', function () {
@@ -89,8 +89,8 @@ describe('Model Indexes', function () {
         // should be one on type.
         var verifyQ = 'SELECT * FROM system:indexes WHERE ' +
           'keyspace_id=\'' + ottoman.bucket._name + '\' AND ' +
-          '(ARRAY_CONTAINS(index_key, \'`_type`\') OR ' +
-          'ARRAY_CONTAINS(index_key, \'_type\'))';
+          '(ARRAY_CONTAINS(index_key, \'`type`\') OR ' +
+          'ARRAY_CONTAINS(index_key, \'type\'))';
 
         ottoman.bucket.query(couchbase.N1qlQuery.fromString(verifyQ),
           function (err, rows) {

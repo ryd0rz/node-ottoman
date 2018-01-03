@@ -95,8 +95,8 @@ describe('Models', function () {
       });
       var x = new TestMdl();
       var xJson = x.toCoo();
-      assert.typeOf(xJson._type, 'string');
-      assert.equal(xJson._type, ottoman.nsPrefix() + modelId);
+      assert.typeOf(xJson.type, 'string');
+      assert.equal(xJson.type, ottoman.nsPrefix() + modelId);
       assert.typeOf(xJson.id, 'string');
       assert.equal(xJson.id, x._id);
       assert.isUndefined(xJson.name);
@@ -161,7 +161,7 @@ describe('Models', function () {
       assert.equal(x.name, xObj.name);
     });
 
-    it('should fail to deserialize a Mixed type without _type', function () {
+    it('should fail to deserialize a Mixed type without type', function () {
       var data = {
         name: 'Frank'
       };
@@ -187,7 +187,7 @@ describe('Models', function () {
     it('should fail to deserialize an unregistered type', function () {
       var modelId = H.uniqueId('model');
       var data = {
-        _type: modelId,
+        type: modelId,
         name: 'Frank'
       };
       assert.throw(function () {
@@ -342,8 +342,8 @@ describe('Models', function () {
 
       assert.typeOf(xJson, 'object');
 
-      // _type should *not* be there, no internals.
-      assert.equal(x._type, undefined);
+      // type should *not* be there, no internals.
+      assert.equal(x.type, undefined);
 
       assert.typeOf(xJson.id, 'string');
       assert.equal(xJson.name, 'hello');
@@ -438,7 +438,7 @@ describe('Models', function () {
       var xJson = x.toCoo();
 
       assert.instanceOf(xJson.when, Object);
-      assert.equal(xJson.when._type, 'Date');
+      assert.equal(xJson.when.type, 'Date');
       assert.equal(xJson.when.v, x.when.toISOString());
     });
   });
